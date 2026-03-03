@@ -17,34 +17,75 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
 
   <section class="section">
     <h2 class="section-title">Mask Quality Metrics</h2>
-    <p class="note">
-      Note: Charts below use placeholder data. Replace <code>mask_metrics_sam2_vs_yolo.csv</code> with real experimental data for accurate results.
-    </p>
     <div class="charts-grid">
       <LineChart
         csvUrl={csvUrl}
         xColumn="frame_idx"
-        yColumns={['iou_sam2', 'iou_yolo']}
-        labels={['SAM2', 'YOLO']}
+        yColumns={['iou']}
+        labels={['IoU (SAM2 vs YOLO)']}
         title="IoU vs Frame Index"
         yLabel="IoU"
       />
       <LineChart
         csvUrl={csvUrl}
         xColumn="frame_idx"
-        yColumns={['dice_sam2', 'dice_yolo']}
-        labels={['SAM2', 'YOLO']}
+        yColumns={['dice']}
+        labels={['Dice Coefficient']}
         title="Dice Coefficient vs Frame Index"
         yLabel="Dice"
       />
       <LineChart
         csvUrl={csvUrl}
         xColumn="frame_idx"
-        yColumns={['ssim_sam2', 'ssim_yolo']}
-        labels={['SAM2', 'YOLO']}
+        yColumns={['ssim']}
+        labels={['SSIM']}
         title="SSIM vs Frame Index"
         yLabel="SSIM"
       />
+      <LineChart
+        csvUrl={csvUrl}
+        xColumn="frame_idx"
+        yColumns={['area_sam2', 'area_yolo']}
+        labels={['SAM2 Mask Area', 'YOLO Mask Area']}
+        title="Mask Area Comparison"
+        yLabel="Area (pixels)"
+      />
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Video Gallery</h2>
+    <div class="grid-2">
+      <div class="card video-card">
+        <h3>Mask Comparison: YOLO vs SAM2</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/mask_compare_yolo_vs_sam2.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Object Replacement: Cat to Drone</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/output_replace_cat_to_drone.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Final Result</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/result.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Bear Clip Baseline</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/bear_clip_baseline.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Humans Video Preview</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/humans_vid3_preview.mp4')} type="video/mp4" />
+        </video>
+      </div>
     </div>
   </section>
 
@@ -52,34 +93,31 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
     <h2 class="section-title">Key Findings</h2>
     <div class="grid-2">
       <div class="card stat-card">
-        <div class="stat-value">+9%</div>
-        <div class="stat-label">IoU improvement</div>
-        <p>SAM2 over YOLO on average across all test sequences</p>
+        <div class="stat-value">0.91</div>
+        <div class="stat-label">Mean IoU</div>
+        <p>SAM2 vs YOLO mask overlap across 60 frames</p>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">+6%</div>
-        <div class="stat-label">Dice improvement</div>
-        <p>SAM2 produces tighter masks on deformable objects</p>
+        <div class="stat-value">0.95</div>
+        <div class="stat-label">Mean Dice</div>
+        <p>High mask agreement between methods</p>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">+8%</div>
-        <div class="stat-label">SSIM improvement</div>
-        <p>Better structural similarity in inpainted regions</p>
+        <div class="stat-value">0.98</div>
+        <div class="stat-label">Mean SSIM</div>
+        <p>Near-perfect structural similarity in masked regions</p>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">3.1x</div>
-        <div class="stat-label">Speed ratio</div>
-        <p>YOLO is faster but trades off mask quality</p>
+        <div class="stat-value">~15K</div>
+        <div class="stat-label">Avg Mask Area</div>
+        <p>SAM2 produces slightly tighter masks than YOLO</p>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Detailed Comparison Table</h2>
-    <p class="note">
-      Note: Table uses placeholder data. Replace <code>ninjas.csv</code> with real data.
-    </p>
-    <MetricsTable csvUrl={ninjaCsvUrl} title="Video Metrics Comparison" />
+    <h2 class="section-title">Object Insertion Parameters</h2>
+    <MetricsTable csvUrl={ninjaCsvUrl} title="Per-Frame Insertion Parameters (ninjas.csv)" />
   </section>
 </BaseLayout>
 
@@ -89,16 +127,6 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
     color: var(--c-text-muted);
     margin-bottom: var(--space-2xl);
   }
-  .note {
-    font-size: 0.875rem;
-    color: var(--c-text-muted);
-    font-style: italic;
-    margin-bottom: var(--space-lg);
-    padding: var(--space-sm) var(--space-md);
-    background: var(--c-surface);
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--c-accent);
-  }
   .charts-grid {
     display: grid;
     gap: var(--space-lg);
@@ -107,9 +135,14 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
     .charts-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    .charts-grid > :last-child {
-      grid-column: 1 / -1;
-    }
+  }
+  .video-card video {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+  }
+  .video-card h3 {
+    font-size: 1rem;
   }
   .stat-card {
     text-align: center;
