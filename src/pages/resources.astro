@@ -1,22 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PDFViewer from '../components/PDFViewer.astro';
 import { url } from '../utils/url';
 ---
 
 <BaseLayout title="Resources">
   <h1>Resources</h1>
   <p class="page-intro">
-    Research papers, thesis review documents, and supplementary materials.
+    Notebooks, reference links, and supplementary materials.
   </p>
-
-  <section class="section">
-    <h2 class="section-title">IST Paper</h2>
-    <PDFViewer
-      src={url('/assets/papers/IST_paper.pdf')}
-      title="IST Paper"
-    />
-  </section>
 
   <section class="section">
     <h2 class="section-title">Jupyter Notebooks</h2>
