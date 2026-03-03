@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PDFViewer from '../components/PDFViewer.astro';
+import { url } from '../utils/url';
+---
+
+<BaseLayout title="Resources">
+  <h1>Resources</h1>
+  <p class="page-intro">
+    Research papers, thesis review documents, and supplementary materials.
+  </p>
+
+  <section class="section">
+    <h2 class="section-title">Thesis Review</h2>
+    <PDFViewer
+      src={url('/assets/papers/WeakBachThesisReview.pdf')}
+      title="WeakBach Thesis Review"
+    />
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">IST Paper</h2>
+    <PDFViewer
+      src={url('/assets/papers/IST_paper.pdf')}
+      title="IST Paper"
+    />
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Additional Resources</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Key References</h3>
+        <ul>
+          <li><a href="https://github.com/facebookresearch/sam2" target="_blank" rel="noopener">SAM2 — Segment Anything Model 2</a></li>
+          <li><a href="https://github.com/sczhou/ProPainter" target="_blank" rel="noopener">ProPainter — Video Inpainting</a></li>
+          <li><a href="https://arxiv.org/abs/2301.07093" target="_blank" rel="noopener">Stable Diffusion Inpainting</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Datasets</h3>
+        <ul>
+          <li><a href="https://davischallenge.org/" target="_blank" rel="noopener">DAVIS — Video Object Segmentation</a></li>
+          <li><a href="https://youtube-vos.org/" target="_blank" rel="noopener">YouTube-VOS</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-intro {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-2xl);
+  }
+  ul {
+    padding-left: var(--space-xl);
+    margin-top: var(--space-sm);
+  }
+  li {
+    margin-bottom: var(--space-xs);
+  }
+</style>

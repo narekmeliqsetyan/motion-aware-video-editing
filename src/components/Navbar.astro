@@ -1,0 +1,131 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { url } from '../utils/url';
+
+const links = [
+  { href: url('/'), label: 'Home' },
+  { href: url('/method'), label: 'Method' },
+  { href: url('/results'), label: 'Results' },
+  { href: url('/resources'), label: 'Resources' },
+  { href: url('/reproducibility'), label: 'Reproducibility' },
+  { href: url('/team'), label: 'Team' },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href={url('/')}>MAVE</a>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      {links.map(({ href, label }) => {
+        const hrefNorm = href.replace(/\/$/, '') || '/';
+        const active = currentPath === hrefNorm;
+        return <a href={href} class:list={['nav-link', { active }]}>{label}</a>;
+      })}
+      <ThemeToggle />
+    </div>
+  </div>
+</nav>
+
+<script>
+  const btn = document.querySelector('.hamburger') as HTMLButtonElement;
+  const nav = document.querySelector('.nav-links') as HTMLElement;
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    nav.classList.toggle('open');
+  });
+</script>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: var(--c-bg);
+    border-bottom: 1px solid var(--c-border);
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--c-bg) 85%, transparent);
+  }
+  .navbar-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-md);
+    gap: var(--space-lg);
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--c-primary);
+    letter-spacing: 0.05em;
+  }
+  .brand:hover { text-decoration: none; }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-left: auto;
+  }
+  .nav-link {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--c-text-muted);
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-link:hover {
+    color: var(--c-text);
+    background: var(--c-surface);
+    text-decoration: none;
+  }
+  .nav-link.active {
+    color: var(--c-primary);
+    background: var(--c-surface);
+  }
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-xs);
+    margin-left: auto;
+  }
+  .hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--c-text);
+    border-radius: 1px;
+    transition: transform 0.2s;
+  }
+
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: var(--c-bg);
+      border-bottom: 1px solid var(--c-border);
+      padding: var(--space-md);
+      gap: var(--space-xs);
+    }
+    .nav-links.open { display: flex; }
+  }
+</style>

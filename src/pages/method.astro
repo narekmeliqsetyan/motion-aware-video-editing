@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ImageWithFallback from '../components/ImageWithFallback.astro';
+import { url } from '../utils/url';
+---
+
+<BaseLayout title="Method" math>
+  <h1>Method</h1>
+  <p class="page-intro">
+    Our pipeline combines segmentation, inpainting, and generative insertion
+    with explicit motion modeling for temporally coherent video editing.
+  </p>
+
+  <section class="section">
+    <h2 class="section-title">Pipeline Overview</h2>
+    <div class="card">
+      <ImageWithFallback src={url('/assets/images/Untitled.png')} alt="Pipeline overview diagram" />
+    </div>
+    <ol class="pipeline-steps">
+      <li><strong>Object Segmentation</strong> — SAM2 generates per-frame binary masks for the target object via prompt-guided tracking.</li>
+      <li><strong>Video Inpainting</strong> — ProPainter fills masked regions using flow-guided temporal attention, producing a clean background plate.</li>
+      <li><strong>Generative Object Insertion</strong> — A diffusion-based model generates the replacement object conditioned on the scene context.</li>
+      <li><strong>Motion-Aware Warping</strong> — Optical-flow-derived similarity transforms warp the generated object to match inter-frame motion.</li>
+      <li><strong>Compositing</strong> — Alpha-blended composition with Poisson blending produces the final output video.</li>
+    </ol>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Mathematical Formulation</h2>
+    <div class="math-content" set:html={`
+    <h3>Similarity Transform</h3>
+    <p>
+      Each frame's object pose is described by a similarity transform
+      $$T_t(x) = s_t \\, R(\\theta_t) \\, x + b_t$$, where $s_t$ is the scale
+      factor, $R(\\theta_t)$ is a 2D rotation matrix, and $b_t$ is the
+      translation vector.
+    </p>
+
+    <h3>Optical Flow Warping</h3>
+    <p>
+      Given dense optical flow $F_{t \\to t+1}: \\mathbb{R}^2 \\to \\mathbb{R}^2$
+      between consecutive frames, we warp the replacement object mask:
+    </p>
+    <p>
+      $$\\hat{I}_{t+1}(p) = I_t\\bigl(p + F_{t \\to t+1}(p)\\bigr)$$
+    </p>
+
+    <h3>Warping-Consistency Error</h3>
+    <p>
+      We measure temporal consistency via the warping error across frames:
+    </p>
+    <p>
+      $$E_{\\text{warp}} = \\frac{1}{|\\Omega|} \\sum_{p \\in \\Omega}
+      \\bigl\\| I_{t+1}(p) - \\hat{I}_{t+1}(p) \\bigr\\|_2$$
+    </p>
+    <p>
+      where $\\Omega$ is the set of valid (non-occluded) pixels.
+    </p>
+
+    <h3>Mask Propagation Quality</h3>
+    <p>
+      We evaluate mask quality using Intersection over Union:
+      $$\\text{IoU} = \\frac{|M_{\\text{pred}} \\cap M_{\\text{gt}}|}{|M_{\\text{pred}} \\cup M_{\\text{gt}}|}$$
+      and the Dice coefficient:
+      $$\\text{Dice} = \\frac{2 |M_{\\text{pred}} \\cap M_{\\text{gt}}|}{|M_{\\text{pred}}| + |M_{\\text{gt}}|}$$
+    </p>
+    `} />
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">SAM2 vs. YOLO Mask Propagation</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>SAM2</h3>
+        <ImageWithFallback src={url('/assets/images/cat_gan.png')} alt="SAM2 segmentation result" />
+        <ul>
+          <li>Prompt-guided tracking with memory attention</li>
+          <li>Higher IoU on deformable objects</li>
+          <li>Slower per-frame inference (~100ms)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>YOLOv8 + ByteTrack</h3>
+        <ul>
+          <li>Detection-based tracking with re-ID</li>
+          <li>Faster inference (~30ms per frame)</li>
+          <li>Lower mask quality on non-rigid objects</li>
+          <li>Better for real-time applications</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Known Limitations</h2>
+    <ul class="limitations">
+      <li>Fast camera motion can cause flow estimation failures, leading to drift in warped objects.</li>
+      <li>Occluded regions during inpainting may produce hallucinated textures that break temporal consistency.</li>
+      <li>The current pipeline processes videos offline; real-time performance requires model distillation.</li>
+      <li>Generative insertion quality depends heavily on the diversity of the training data.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Next Steps</h2>
+    <ul>
+      <li>Integrate depth-aware warping for parallax-correct object insertion in 3D scenes.</li>
+      <li>Explore diffusion-based video generation models (e.g., SVD) for end-to-end replacement.</li>
+      <li>Benchmark on DAVIS and YouTube-VOS datasets for standardized comparison.</li>
+    </ul>
+  </section>
+</BaseLayout>
+
+
+<style>
+  .page-intro {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-2xl);
+  }
+  .pipeline-steps {
+    margin-top: var(--space-lg);
+    padding-left: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .pipeline-steps li {
+    line-height: 1.6;
+  }
+  .limitations {
+    padding-left: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  ul:not(.limitations):not(.pipeline-steps) {
+    padding-left: var(--space-xl);
+    margin-top: var(--space-sm);
+  }
+  ul:not(.limitations):not(.pipeline-steps) li {
+    margin-bottom: var(--space-xs);
+  }
+  h3 {
+    margin-top: var(--space-lg);
+  }
+</style>

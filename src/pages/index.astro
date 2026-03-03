@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../utils/url';
+---
+
+<BaseLayout title="Home">
+  <section class="hero">
+    <h1>Motion-Aware Video Editing</h1>
+    <p class="subtitle">
+      AI-powered object replacement in video using generative models with
+      motion-consistent propagation.
+    </p>
+    <div class="hero-actions">
+      <a href={url('/method')} class="btn btn-primary">Explore Method</a>
+      <a href={url('/results')} class="btn">View Results</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Abstract</h2>
+    <div class="card">
+      <p>
+        We present a pipeline for <strong>motion-aware object replacement</strong> in
+        video sequences. Our approach combines state-of-the-art segmentation
+        (SAM2) with video inpainting (ProPainter) and generative object
+        insertion, preserving temporal coherence through explicit motion
+        modeling. We track similarity transforms across frames to warp
+        replacement objects consistently, achieving high-quality results that
+        respect the original scene dynamics.
+      </p>
+      <p>
+        Key contributions include: (1) a comparison of SAM2 vs. YOLO-based
+        mask propagation for video object segmentation, (2) motion-field
+        estimation using optical flow for temporally consistent warping, and
+        (3) a quantitative evaluation framework using IoU, Dice, SSIM, LPIPS,
+        and FID metrics.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Quick Links</h2>
+    <div class="grid-3">
+      <a href={url('/method')} class="link-card card">
+        <h3>Method</h3>
+        <p>Pipeline architecture, math formulations, and design decisions.</p>
+      </a>
+      <a href={url('/results')} class="link-card card">
+        <h3>Results</h3>
+        <p>Interactive charts, metric comparisons, and visual gallery.</p>
+      </a>
+      <a href={url('/resources')} class="link-card card">
+        <h3>Resources</h3>
+        <p>Research papers, thesis review, and downloadable materials.</p>
+      </a>
+      <a href={url('/reproducibility')} class="link-card card">
+        <h3>Reproducibility</h3>
+        <p>How to run, evaluate, and reproduce our experiments.</p>
+      </a>
+      <a href={url('/team')} class="link-card card">
+        <h3>Team</h3>
+        <p>Meet the researchers behind this project.</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-3xl) 0;
+  }
+  .subtitle {
+    font-size: 1.2rem;
+    color: var(--c-text-muted);
+    max-width: 40rem;
+    margin: var(--space-md) auto var(--space-xl);
+  }
+  .hero-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .link-card {
+    display: block;
+    color: var(--c-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .link-card:hover {
+    border-color: var(--c-primary);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+  }
+  .link-card h3 {
+    color: var(--c-primary);
+    margin-bottom: var(--space-xs);
+  }
+  .link-card p {
+    font-size: 0.9rem;
+    color: var(--c-text-muted);
+  }
+</style>

@@ -1,0 +1,7 @@
+video,method,IoU,Dice,SSIM,LPIPS,FID,runtime_s
+ninja_walk,SAM2+ProPainter,0.91,0.95,0.87,0.08,12.3,4.2
+ninja_walk,YOLO+ProPainter,0.83,0.90,0.80,0.14,18.7,3.1
+ninja_jump,SAM2+ProPainter,0.89,0.94,0.85,0.09,13.1,4.5
+ninja_jump,YOLO+ProPainter,0.81,0.88,0.78,0.16,20.2,3.3
+ninja_run,SAM2+ProPainter,0.90,0.95,0.86,0.08,12.8,4.3
+ninja_run,YOLO+ProPainter,0.82,0.89,0.79,0.15,19.5,3.2

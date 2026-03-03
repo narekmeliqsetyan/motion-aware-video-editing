@@ -1,0 +1,184 @@
+---
+interface Props {
+  csvUrl: string;
+  title: string;
+}
+
+const { csvUrl, title } = Astro.props;
+const tableId = `table-${title.replace(/\W+/g, '-').toLowerCase()}`;
+---
+
+<div class="table-wrapper">
+  <div class="table-header">
+    <h3>{title}</h3>
+    <input
+      type="search"
+      class="table-search"
+      id={`${tableId}-search`}
+      placeholder="Search..."
+      aria-label="Search table"
+    />
+  </div>
+  <div class="table-scroll">
+    <table id={tableId}>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="table-fallback" id={`${tableId}-fallback`} style="display:none;">
+    <p>Table could not be loaded. CSV data may be unavailable.</p>
+  </div>
+</div>
+
+<script define:vars={{ csvUrl, tableId }}>
+  async function initTable() {
+    const table = document.getElementById(tableId);
+    const fallback = document.getElementById(`${tableId}-fallback`);
+    const search = document.getElementById(`${tableId}-search`);
+    if (!table) return;
+
+    try {
+      const { default: Papa } = await import('papaparse');
+
+      let csvText = sessionStorage.getItem(csvUrl);
+      if (!csvText) {
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        csvText = await res.text();
+        sessionStorage.setItem(csvUrl, csvText);
+      }
+
+      const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
+      if (!parsed.data?.length) throw new Error('Empty CSV');
+
+      const cols = parsed.meta.fields || Object.keys(parsed.data[0]);
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+
+      // Build header
+      const headerRow = document.createElement('tr');
+      let sortCol = -1;
+      let sortAsc = true;
+      cols.forEach((col, i) => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        th.style.cursor = 'pointer';
+        th.setAttribute('title', `Sort by ${col}`);
+        th.addEventListener('click', () => {
+          if (sortCol === i) {
+            sortAsc = !sortAsc;
+          } else {
+            sortCol = i;
+            sortAsc = true;
+          }
+          renderRows();
+          // Update indicators
+          headerRow.querySelectorAll('th').forEach((h, j) => {
+            h.textContent = cols[j] + (j === sortCol ? (sortAsc ? ' \u25B2' : ' \u25BC') : '');
+          });
+        });
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+
+      function renderRows() {
+        let rows = [...parsed.data];
+        // Filter
+        const q = search?.value?.toLowerCase() || '';
+        if (q) {
+          rows = rows.filter((r) =>
+            cols.some((c) => String(r[c]).toLowerCase().includes(q))
+          );
+        }
+        // Sort
+        if (sortCol >= 0) {
+          const key = cols[sortCol];
+          rows.sort((a, b) => {
+            const va = a[key], vb = b[key];
+            if (typeof va === 'number' && typeof vb === 'number') return sortAsc ? va - vb : vb - va;
+            return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+          });
+        }
+        tbody.innerHTML = '';
+        rows.forEach((r) => {
+          const tr = document.createElement('tr');
+          cols.forEach((c) => {
+            const td = document.createElement('td');
+            td.textContent = String(r[c] ?? '');
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      search?.addEventListener('input', renderRows);
+      renderRows();
+    } catch (e) {
+      console.warn(`Table ${tableId} failed:`, e);
+      if (table) table.style.display = 'none';
+      if (fallback) fallback.style.display = 'block';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTable);
+  } else {
+    initTable();
+  }
+</script>
+
+<style>
+  .table-wrapper {
+    background: var(--c-bg-alt);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
+  .table-search {
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-size: 0.875rem;
+    width: 200px;
+  }
+  .table-scroll {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  :global(th) {
+    text-align: left;
+    padding: var(--space-sm);
+    border-bottom: 2px solid var(--c-border);
+    font-weight: 600;
+    white-space: nowrap;
+    user-select: none;
+    color: var(--c-text);
+  }
+  :global(td) {
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+  }
+  :global(tbody tr:hover) {
+    background: var(--c-surface);
+  }
+  .table-fallback {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--c-text-muted);
+  }
+</style>

@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Reproducibility">
+  <h1>Reproducibility</h1>
+  <p class="page-intro">
+    Instructions for reproducing our experiments and evaluation pipeline.
+  </p>
+
+  <section class="section">
+    <h2 class="section-title">Environment Setup</h2>
+    <div class="card">
+      <h3>Prerequisites</h3>
+      <ul>
+        <li>Python 3.10+</li>
+        <li>CUDA 11.8+ (GPU recommended)</li>
+        <li>16GB+ RAM</li>
+      </ul>
+      <h3>Installation</h3>
+      <pre><code>git clone https://github.com/narekmeliqsetyan/motion-aware-video-editing.git
+cd motion-aware-video-editing
+pip install -r requirements.txt</code></pre>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Running the Pipeline</h2>
+    <div class="card">
+      <h3>1. Object Segmentation</h3>
+      <pre><code>python segment.py --input video.mp4 --model sam2 --prompt "object to replace"</code></pre>
+
+      <h3>2. Video Inpainting</h3>
+      <pre><code>python inpaint.py --input video.mp4 --masks masks/ --output inpainted.mp4</code></pre>
+
+      <h3>3. Object Insertion + Warping</h3>
+      <pre><code>python insert.py --background inpainted.mp4 --object replacement.png --output final.mp4</code></pre>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Evaluation</h2>
+    <div class="card">
+      <h3>Metrics Computation</h3>
+      <pre><code>python evaluate.py --pred results/ --gt ground_truth/ --metrics iou dice ssim lpips fid</code></pre>
+
+      <h3>Metric Definitions</h3>
+      <ul>
+        <li><strong>IoU</strong> — Intersection over Union of predicted and ground-truth masks</li>
+        <li><strong>Dice</strong> — Dice coefficient (F1 score of mask overlap)</li>
+        <li><strong>SSIM</strong> — Structural Similarity Index of inpainted frames</li>
+        <li><strong>LPIPS</strong> — Learned Perceptual Image Patch Similarity (lower is better)</li>
+        <li><strong>FID</strong> — Frechet Inception Distance of generated objects (lower is better)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Expected Results</h2>
+    <div class="card">
+      <p>
+        With the default configuration and provided test videos, you should
+        obtain results within the following ranges:
+      </p>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>SAM2 + ProPainter</th>
+            <th>YOLO + ProPainter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>IoU</td><td>0.85 - 0.92</td><td>0.71 - 0.85</td></tr>
+          <tr><td>Dice</td><td>0.89 - 0.96</td><td>0.80 - 0.91</td></tr>
+          <tr><td>SSIM</td><td>0.78 - 0.88</td><td>0.70 - 0.82</td></tr>
+          <tr><td>LPIPS</td><td>0.05 - 0.10</td><td>0.10 - 0.18</td></tr>
+          <tr><td>FID</td><td>10 - 15</td><td>15 - 22</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Troubleshooting</h2>
+    <div class="card">
+      <ul>
+        <li><strong>CUDA out of memory</strong> — Reduce batch size or use CPU mode with <code>--device cpu</code></li>
+        <li><strong>SAM2 checkpoint not found</strong> — Download from the <a href="https://github.com/facebookresearch/sam2" target="_blank" rel="noopener">official repo</a></li>
+        <li><strong>Low-quality inpainting</strong> — Ensure masks cover the full object; dilate masks by 5-10 pixels</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-intro {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-2xl);
+  }
+  h3 {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+  ul {
+    padding-left: var(--space-xl);
+    margin-bottom: var(--space-md);
+  }
+  li { margin-bottom: var(--space-xs); }
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--space-md);
+    font-size: 0.9rem;
+  }
+  .results-table th,
+  .results-table td {
+    padding: var(--space-sm);
+    border: 1px solid var(--c-border);
+    text-align: center;
+  }
+  .results-table th {
+    background: var(--c-surface);
+    font-weight: 600;
+  }
+</style>

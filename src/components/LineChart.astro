@@ -1,0 +1,126 @@
+---
+interface Props {
+  csvUrl: string;
+  xColumn: string;
+  yColumns: string[];
+  labels: string[];
+  title: string;
+  yLabel?: string;
+}
+
+const { csvUrl, xColumn, yColumns, labels, title, yLabel } = Astro.props;
+const chartId = `chart-${title.replace(/\W+/g, '-').toLowerCase()}`;
+---
+
+<div class="chart-wrapper">
+  <h3 class="chart-title">{title}</h3>
+  <div class="chart-container">
+    <canvas id={chartId}></canvas>
+  </div>
+  <div class="chart-fallback" id={`${chartId}-fallback`} style="display:none;">
+    <p>Chart could not be loaded. CSV data may be unavailable.</p>
+  </div>
+</div>
+
+<script
+  define:vars={{ chartId, csvUrl, xColumn, yColumns, labels, yLabel }}
+>
+  async function initChart() {
+    const fallback = document.getElementById(`${chartId}-fallback`);
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    try {
+      const { default: Papa } = await import('papaparse');
+      const {
+        Chart,
+        LineController,
+        LineElement,
+        PointElement,
+        LinearScale,
+        CategoryScale,
+        Tooltip,
+        Legend,
+      } = await import('chart.js');
+
+      Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
+
+      // Fetch CSV (with sessionStorage cache)
+      let csvText = sessionStorage.getItem(csvUrl);
+      if (!csvText) {
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        csvText = await res.text();
+        sessionStorage.setItem(csvUrl, csvText);
+      }
+
+      const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
+      if (!parsed.data?.length) throw new Error('Empty CSV');
+
+      const xData = parsed.data.map((r) => r[xColumn]);
+      const colors = ['#6366f1', '#06b6d4', '#f59e0b', '#ef4444'];
+
+      const datasets = yColumns.map((col, i) => ({
+        label: labels[i] || col,
+        data: parsed.data.map((r) => r[col]),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '22',
+        tension: 0.3,
+        pointRadius: 3,
+      }));
+
+      new Chart(canvas, {
+        type: 'line',
+        data: { labels: xData, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { mode: 'index', intersect: false },
+          },
+          scales: {
+            y: {
+              title: { display: !!yLabel, text: yLabel || '' },
+              beginAtZero: false,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      console.warn(`Chart ${chartId} failed:`, e);
+      if (canvas) canvas.style.display = 'none';
+      if (fallback) fallback.style.display = 'block';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChart);
+  } else {
+    initChart();
+  }
+</script>
+
+<style>
+  .chart-wrapper {
+    background: var(--c-bg-alt);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+  .chart-title {
+    margin-bottom: var(--space-md);
+    font-size: 1.1rem;
+  }
+  .chart-container {
+    position: relative;
+    height: 320px;
+  }
+  .chart-fallback {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--c-text-muted);
+    background: var(--c-surface);
+    border-radius: var(--radius-md);
+  }
+</style>

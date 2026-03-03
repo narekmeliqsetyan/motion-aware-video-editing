@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { team } from '../data/team';
+---
+
+<BaseLayout title="Team">
+  <h1>Team</h1>
+  <p class="page-intro">
+    The researchers and advisors behind the Motion-Aware Video Editing project.
+  </p>
+
+  <section class="section">
+    <div class="team-grid">
+      {team.map((member) => (
+        <div class="team-card card">
+          <div class="avatar">
+            {member.name.split(' ').map(n => n[0]).join('')}
+          </div>
+          <h3>{member.link ? <a href={member.link} target="_blank" rel="noopener">{member.name}</a> : member.name}</h3>
+          <p class="role">{member.role}</p>
+          {member.affiliation && <p class="affiliation">{member.affiliation}</p>}
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-intro {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-2xl);
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-lg);
+  }
+  .team-card {
+    text-align: center;
+    padding: var(--space-xl);
+  }
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--c-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin: 0 auto var(--space-md);
+  }
+  .role {
+    color: var(--c-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .affiliation {
+    color: var(--c-text-muted);
+    font-size: 0.85rem;
+  }
+</style>

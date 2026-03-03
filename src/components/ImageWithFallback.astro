@@ -1,0 +1,20 @@
+---
+import { url } from '../utils/url';
+
+interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+}
+
+const { src, alt, class: className } = Astro.props;
+const placeholderSrc = url('/assets/images/placeholder.svg');
+---
+
+<img
+  src={src}
+  alt={alt}
+  class={className}
+  loading="lazy"
+  onerror={`this.onerror=null;this.src='${placeholderSrc}'`}
+/>

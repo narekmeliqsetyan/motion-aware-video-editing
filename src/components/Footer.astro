@@ -1,0 +1,25 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p>&copy; {year} Motion-Aware Video Editing Research Project</p>
+    <p class="muted">Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a></p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--c-border);
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--c-text-muted);
+  }
+  .footer-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+  .muted { margin-top: var(--space-xs); }
+</style>

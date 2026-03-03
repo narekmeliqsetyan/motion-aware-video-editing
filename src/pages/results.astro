@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LineChart from '../components/LineChart.astro';
+import MetricsTable from '../components/MetricsTable.astro';
+import { url } from '../utils/url';
+
+const csvUrl = url('/assets/data/mask_metrics_sam2_vs_yolo.csv');
+const ninjaCsvUrl = url('/assets/data/ninjas.csv');
+---
+
+<BaseLayout title="Results">
+  <h1>Results</h1>
+  <p class="page-intro">
+    Quantitative evaluation of our motion-aware video editing pipeline
+    comparing SAM2 and YOLO-based mask propagation strategies.
+  </p>
+
+  <section class="section">
+    <h2 class="section-title">Mask Quality Metrics</h2>
+    <p class="note">
+      Note: Charts below use placeholder data. Replace <code>mask_metrics_sam2_vs_yolo.csv</code> with real experimental data for accurate results.
+    </p>
+    <div class="charts-grid">
+      <LineChart
+        csvUrl={csvUrl}
+        xColumn="frame_idx"
+        yColumns={['iou_sam2', 'iou_yolo']}
+        labels={['SAM2', 'YOLO']}
+        title="IoU vs Frame Index"
+        yLabel="IoU"
+      />
+      <LineChart
+        csvUrl={csvUrl}
+        xColumn="frame_idx"
+        yColumns={['dice_sam2', 'dice_yolo']}
+        labels={['SAM2', 'YOLO']}
+        title="Dice Coefficient vs Frame Index"
+        yLabel="Dice"
+      />
+      <LineChart
+        csvUrl={csvUrl}
+        xColumn="frame_idx"
+        yColumns={['ssim_sam2', 'ssim_yolo']}
+        labels={['SAM2', 'YOLO']}
+        title="SSIM vs Frame Index"
+        yLabel="SSIM"
+      />
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Key Findings</h2>
+    <div class="grid-2">
+      <div class="card stat-card">
+        <div class="stat-value">+9%</div>
+        <div class="stat-label">IoU improvement</div>
+        <p>SAM2 over YOLO on average across all test sequences</p>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value">+6%</div>
+        <div class="stat-label">Dice improvement</div>
+        <p>SAM2 produces tighter masks on deformable objects</p>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value">+8%</div>
+        <div class="stat-label">SSIM improvement</div>
+        <p>Better structural similarity in inpainted regions</p>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value">3.1x</div>
+        <div class="stat-label">Speed ratio</div>
+        <p>YOLO is faster but trades off mask quality</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Detailed Comparison Table</h2>
+    <p class="note">
+      Note: Table uses placeholder data. Replace <code>ninjas.csv</code> with real data.
+    </p>
+    <MetricsTable csvUrl={ninjaCsvUrl} title="Video Metrics Comparison" />
+  </section>
+</BaseLayout>
+
+<style>
+  .page-intro {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-2xl);
+  }
+  .note {
+    font-size: 0.875rem;
+    color: var(--c-text-muted);
+    font-style: italic;
+    margin-bottom: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--c-surface);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--c-accent);
+  }
+  .charts-grid {
+    display: grid;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 1024px) {
+    .charts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .charts-grid > :last-child {
+      grid-column: 1 / -1;
+    }
+  }
+  .stat-card {
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--c-primary);
+  }
+  .stat-label {
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+  }
+  .stat-card p {
+    font-size: 0.85rem;
+    color: var(--c-text-muted);
+  }
+</style>
