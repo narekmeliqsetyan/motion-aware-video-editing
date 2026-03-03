@@ -92,13 +92,51 @@ import { url } from '../utils/url';
   </section>
 
   <section class="section">
-    <h2 class="section-title">Known Limitations</h2>
-    <ul class="limitations">
-      <li>Fast camera motion can cause flow estimation failures, leading to drift in warped objects.</li>
-      <li>Occluded regions during inpainting may produce hallucinated textures that break temporal consistency.</li>
-      <li>The current pipeline processes videos offline; real-time performance requires model distillation.</li>
-      <li>Generative insertion quality depends heavily on the diversity of the training data.</li>
-    </ul>
+    <h2 class="section-title">Related Work</h2>
+    <div class="card related-work">
+      <h3>Enhancing Temporal Consistency in Video Editing by Reconstructing Videos with 3D Gaussian Splatting</h3>
+      <p class="related-meta">Hayk Minasyan, MS2 student — YSU ASDS (Applied Statistics and Data Science) | TMLR 2025</p>
+      <p>
+        This related work addresses temporal consistency in video editing through
+        3D Gaussian Splatting reconstruction. The approach reconstructs video scenes
+        as 3D Gaussian representations, enabling edits that remain consistent across
+        frames by operating in 3D space rather than on individual 2D frames.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Limitations Identified by Hayk Minasyan</h2>
+    <p class="limitations-intro">
+      The following video demonstrations, shared by Hayk Minasyan, illustrate key
+      limitations of current temporal consistency approaches in video editing.
+    </p>
+    <div class="grid-2">
+      <div class="card video-card">
+        <h3>Limitation Demo 1</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/limitation_1.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Limitation Demo 2</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/limitation_2.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Limitation Demo 3</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/limitation_3.mp4')} type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <h3>Limitation Demo 4</h3>
+        <video controls preload="metadata">
+          <source src={url('/assets/videos/limitation_4.mp4')} type="video/mp4" />
+        </video>
+      </div>
+    </div>
   </section>
 
   <section class="section">
@@ -107,6 +145,7 @@ import { url } from '../utils/url';
       <li>Integrate depth-aware warping for parallax-correct object insertion in 3D scenes.</li>
       <li>Explore diffusion-based video generation models (e.g., SVD) for end-to-end replacement.</li>
       <li>Benchmark on DAVIS and YouTube-VOS datasets for standardized comparison.</li>
+      <li>Investigate 3D Gaussian Splatting approaches for improved temporal consistency.</li>
     </ul>
   </section>
 </BaseLayout>
@@ -143,5 +182,28 @@ import { url } from '../utils/url';
   }
   h3 {
     margin-top: var(--space-lg);
+  }
+  .related-work h3 {
+    color: var(--c-primary);
+    margin-top: 0;
+  }
+  .related-meta {
+    font-size: 0.875rem;
+    color: var(--c-text-muted);
+    font-weight: 500;
+    margin-bottom: var(--space-md);
+  }
+  .limitations-intro {
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+  .video-card video {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+  }
+  .video-card h3 {
+    font-size: 1rem;
+    margin-top: 0;
   }
 </style>
