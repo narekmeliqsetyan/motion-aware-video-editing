@@ -8,7 +8,11 @@ const { csvUrl, title } = Astro.props;
 const tableId = `table-${title.replace(/\W+/g, '-').toLowerCase()}`;
 ---
 
-<div class="table-wrapper">
+<div
+  class="table-wrapper"
+  data-table-id={tableId}
+  data-csv-url={csvUrl}
+>
   <div class="table-header">
     <h3>{title}</h3>
     <input
@@ -30,100 +34,102 @@ const tableId = `table-${title.replace(/\W+/g, '-').toLowerCase()}`;
   </div>
 </div>
 
-<script define:vars={{ csvUrl, tableId }}>
-  async function initTable() {
-    const table = document.getElementById(tableId);
-    const fallback = document.getElementById(`${tableId}-fallback`);
-    const search = document.getElementById(`${tableId}-search`);
-    if (!table) return;
+<script>
+  import Papa from 'papaparse';
 
-    try {
-      const { default: Papa } = await import('papaparse');
+  function initTables() {
+    document.querySelectorAll<HTMLElement>('.table-wrapper[data-table-id]').forEach(async (wrapper) => {
+      const tableId = wrapper.dataset.tableId!;
+      const csvUrl = wrapper.dataset.csvUrl!;
 
-      let csvText = sessionStorage.getItem(csvUrl);
-      if (!csvText) {
-        const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        csvText = await res.text();
-        sessionStorage.setItem(csvUrl, csvText);
-      }
+      const table = document.getElementById(tableId) as HTMLTableElement | null;
+      const fallback = document.getElementById(`${tableId}-fallback`);
+      const search = document.getElementById(`${tableId}-search`) as HTMLInputElement | null;
+      if (!table) return;
 
-      const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
-      if (!parsed.data?.length) throw new Error('Empty CSV');
+      try {
+        let csvText = sessionStorage.getItem(csvUrl);
+        if (!csvText) {
+          const res = await fetch(csvUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          csvText = await res.text();
+          sessionStorage.setItem(csvUrl, csvText);
+        }
 
-      const cols = parsed.meta.fields || Object.keys(parsed.data[0]);
-      const thead = table.querySelector('thead');
-      const tbody = table.querySelector('tbody');
+        const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
+        if (!parsed.data?.length) throw new Error('Empty CSV');
 
-      // Build header
-      const headerRow = document.createElement('tr');
-      let sortCol = -1;
-      let sortAsc = true;
-      cols.forEach((col, i) => {
-        const th = document.createElement('th');
-        th.textContent = col;
-        th.style.cursor = 'pointer';
-        th.setAttribute('title', `Sort by ${col}`);
-        th.addEventListener('click', () => {
-          if (sortCol === i) {
-            sortAsc = !sortAsc;
-          } else {
-            sortCol = i;
-            sortAsc = true;
+        const cols = parsed.meta.fields || Object.keys(parsed.data[0] as object);
+        const thead = table.querySelector('thead')!;
+        const tbody = table.querySelector('tbody')!;
+
+        let sortCol = -1;
+        let sortAsc = true;
+
+        const headerRow = document.createElement('tr');
+        cols.forEach((col, i) => {
+          const th = document.createElement('th');
+          th.textContent = col;
+          th.style.cursor = 'pointer';
+          th.setAttribute('title', `Sort by ${col}`);
+          th.addEventListener('click', () => {
+            if (sortCol === i) {
+              sortAsc = !sortAsc;
+            } else {
+              sortCol = i;
+              sortAsc = true;
+            }
+            renderRows();
+            headerRow.querySelectorAll('th').forEach((h, j) => {
+              h.textContent = cols[j] + (j === sortCol ? (sortAsc ? ' \u25B2' : ' \u25BC') : '');
+            });
+          });
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        function renderRows() {
+          let rows = [...parsed.data] as any[];
+          const q = search?.value?.toLowerCase() || '';
+          if (q) {
+            rows = rows.filter((r) =>
+              cols.some((c) => String(r[c]).toLowerCase().includes(q))
+            );
           }
-          renderRows();
-          // Update indicators
-          headerRow.querySelectorAll('th').forEach((h, j) => {
-            h.textContent = cols[j] + (j === sortCol ? (sortAsc ? ' \u25B2' : ' \u25BC') : '');
+          if (sortCol >= 0) {
+            const key = cols[sortCol];
+            rows.sort((a, b) => {
+              const va = a[key], vb = b[key];
+              if (typeof va === 'number' && typeof vb === 'number') return sortAsc ? va - vb : vb - va;
+              return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+            });
+          }
+          tbody.innerHTML = '';
+          rows.forEach((r) => {
+            const tr = document.createElement('tr');
+            cols.forEach((c) => {
+              const td = document.createElement('td');
+              td.textContent = String(r[c] ?? '');
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
           });
-        });
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
+        }
 
-      function renderRows() {
-        let rows = [...parsed.data];
-        // Filter
-        const q = search?.value?.toLowerCase() || '';
-        if (q) {
-          rows = rows.filter((r) =>
-            cols.some((c) => String(r[c]).toLowerCase().includes(q))
-          );
-        }
-        // Sort
-        if (sortCol >= 0) {
-          const key = cols[sortCol];
-          rows.sort((a, b) => {
-            const va = a[key], vb = b[key];
-            if (typeof va === 'number' && typeof vb === 'number') return sortAsc ? va - vb : vb - va;
-            return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-          });
-        }
-        tbody.innerHTML = '';
-        rows.forEach((r) => {
-          const tr = document.createElement('tr');
-          cols.forEach((c) => {
-            const td = document.createElement('td');
-            td.textContent = String(r[c] ?? '');
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
+        search?.addEventListener('input', renderRows);
+        renderRows();
+      } catch (e) {
+        console.warn(`Table ${tableId} failed:`, e);
+        if (table) table.style.display = 'none';
+        if (fallback) fallback.style.display = 'block';
       }
-
-      search?.addEventListener('input', renderRows);
-      renderRows();
-    } catch (e) {
-      console.warn(`Table ${tableId} failed:`, e);
-      if (table) table.style.display = 'none';
-      if (fallback) fallback.style.display = 'block';
-    }
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTable);
+    document.addEventListener('DOMContentLoaded', initTables);
   } else {
-    initTable();
+    initTables();
   }
 </script>
 

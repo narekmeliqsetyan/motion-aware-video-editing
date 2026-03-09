@@ -12,7 +12,15 @@ const { csvUrl, xColumn, yColumns, labels, title, yLabel } = Astro.props;
 const chartId = `chart-${title.replace(/\W+/g, '-').toLowerCase()}`;
 ---
 
-<div class="chart-wrapper">
+<div
+  class="chart-wrapper"
+  data-chart-id={chartId}
+  data-csv-url={csvUrl}
+  data-x-column={xColumn}
+  data-y-columns={JSON.stringify(yColumns)}
+  data-labels={JSON.stringify(labels)}
+  data-y-label={yLabel || ''}
+>
   <h3 class="chart-title">{title}</h3>
   <div class="chart-container">
     <canvas id={chartId}></canvas>
@@ -22,82 +30,88 @@ const chartId = `chart-${title.replace(/\W+/g, '-').toLowerCase()}`;
   </div>
 </div>
 
-<script
-  define:vars={{ chartId, csvUrl, xColumn, yColumns, labels, yLabel }}
->
-  async function initChart() {
-    const fallback = document.getElementById(`${chartId}-fallback`);
-    const canvas = document.getElementById(chartId);
-    if (!canvas) return;
+<script>
+  import Papa from 'papaparse';
+  import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Tooltip,
+    Legend,
+  } from 'chart.js';
 
-    try {
-      const { default: Papa } = await import('papaparse');
-      const {
-        Chart,
-        LineController,
-        LineElement,
-        PointElement,
-        LinearScale,
-        CategoryScale,
-        Tooltip,
-        Legend,
-      } = await import('chart.js');
+  Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
-      Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
+  function initCharts() {
+    document.querySelectorAll<HTMLElement>('.chart-wrapper[data-chart-id]').forEach(async (wrapper) => {
+      const chartId = wrapper.dataset.chartId!;
+      const csvUrl = wrapper.dataset.csvUrl!;
+      const xColumn = wrapper.dataset.xColumn!;
+      const yColumns: string[] = JSON.parse(wrapper.dataset.yColumns!);
+      const labels: string[] = JSON.parse(wrapper.dataset.labels!);
+      const yLabel = wrapper.dataset.yLabel || '';
 
-      // Fetch CSV (with sessionStorage cache)
-      let csvText = sessionStorage.getItem(csvUrl);
-      if (!csvText) {
-        const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        csvText = await res.text();
-        sessionStorage.setItem(csvUrl, csvText);
-      }
+      const canvas = document.getElementById(chartId) as HTMLCanvasElement | null;
+      const fallback = document.getElementById(`${chartId}-fallback`);
+      if (!canvas) return;
 
-      const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
-      if (!parsed.data?.length) throw new Error('Empty CSV');
+      try {
+        let csvText = sessionStorage.getItem(csvUrl);
+        if (!csvText) {
+          const res = await fetch(csvUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          csvText = await res.text();
+          sessionStorage.setItem(csvUrl, csvText);
+        }
 
-      const xData = parsed.data.map((r) => r[xColumn]);
-      const colors = ['#6366f1', '#06b6d4', '#f59e0b', '#ef4444'];
+        const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
+        if (!parsed.data?.length) throw new Error('Empty CSV');
 
-      const datasets = yColumns.map((col, i) => ({
-        label: labels[i] || col,
-        data: parsed.data.map((r) => r[col]),
-        borderColor: colors[i % colors.length],
-        backgroundColor: colors[i % colors.length] + '22',
-        tension: 0.3,
-        pointRadius: 3,
-      }));
+        const xData = parsed.data.map((r: any) => r[xColumn]);
+        const colors = ['#6366f1', '#06b6d4', '#f59e0b', '#ef4444'];
 
-      new Chart(canvas, {
-        type: 'line',
-        data: { labels: xData, datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top' },
-            tooltip: { mode: 'index', intersect: false },
-          },
-          scales: {
-            y: {
-              title: { display: !!yLabel, text: yLabel || '' },
-              beginAtZero: false,
+        const datasets = yColumns.map((col, i) => ({
+          label: labels[i] || col,
+          data: parsed.data.map((r: any) => r[col]),
+          borderColor: colors[i % colors.length],
+          backgroundColor: colors[i % colors.length] + '22',
+          tension: 0.3,
+          pointRadius: 3,
+        }));
+
+        new Chart(canvas, {
+          type: 'line',
+          data: { labels: xData, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: { mode: 'index', intersect: false },
+            },
+            scales: {
+              y: {
+                title: { display: !!yLabel, text: yLabel },
+                beginAtZero: false,
+              },
             },
           },
-        },
-      });
-    } catch (e) {
-      console.warn(`Chart ${chartId} failed:`, e);
-      if (canvas) canvas.style.display = 'none';
-      if (fallback) fallback.style.display = 'block';
-    }
+        });
+      } catch (e) {
+        console.warn(`Chart ${chartId} failed:`, e);
+        if (canvas) canvas.style.display = 'none';
+        if (fallback) fallback.style.display = 'block';
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initChart);
+    document.addEventListener('DOMContentLoaded', initCharts);
   } else {
-    initChart();
+    initCharts();
   }
 </script>
 
