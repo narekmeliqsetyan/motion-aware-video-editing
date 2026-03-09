@@ -7,18 +7,33 @@ export interface TeamMember {
 
 export const team: TeamMember[] = [
   {
-    name: 'Team Member 1',
+    name: 'Stepan Goyunyan',
     role: 'Researcher',
-    affiliation: 'University',
+    affiliation: 'Physmath School After Artashes Shahinyan, Yerevan, Armenia',
   },
   {
-    name: 'Team Member 2',
+    name: 'Narek Meliksetyan',
     role: 'Researcher',
-    affiliation: 'University',
+    affiliation: 'Physmath School After Artashes Shahinyan, Yerevan, Armenia',
   },
   {
-    name: 'Team Member 3',
+    name: 'Arthur Tsaturyan',
+    role: 'Researcher',
+    affiliation: 'Evrika STEM Specialized School, Vanadzor, Armenia',
+  },
+  {
+    name: 'Elizaveta Labazanova',
+    role: 'Researcher',
+    affiliation: 'Moscow, Russia',
+  },
+  {
+    name: 'Zangir Iklassov',
     role: 'Advisor',
-    affiliation: 'University',
+    affiliation: 'Mohammad Bin Zayed University of Artificial Intelligence (MBZUAI), UAE',
+  },
+  {
+    name: 'Jorge Alejandro Amador Herrera',
+    role: 'Advisor',
+    affiliation: 'Mohammad Bin Zayed University of Artificial Intelligence (MBZUAI), UAE',
   },
 ];

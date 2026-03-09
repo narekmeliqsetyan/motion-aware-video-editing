@@ -94,13 +94,29 @@ import { url } from '../utils/url';
   <section class="section">
     <h2 class="section-title">Related Work</h2>
     <div class="card related-work">
-      <h3>Enhancing Temporal Consistency in Video Editing by Reconstructing Videos with 3D Gaussian Splatting</h3>
-      <p class="related-meta">Hayk Minasyan, MS2 student — YSU ASDS (Applied Statistics and Data Science) | TMLR 2025</p>
+      <div class="related-header">
+        <h3>Enhancing Temporal Consistency in Video Editing by Reconstructing Videos with 3D Gaussian Splatting</h3>
+        <span class="related-badge">TMLR 2025</span>
+      </div>
+      <p class="related-meta">
+        Hayk Minasyan, MS2 student &mdash; YSU ASDS (Applied Statistics and Data Science)
+      </p>
       <p>
-        This related work addresses temporal consistency in video editing through
-        3D Gaussian Splatting reconstruction. The approach reconstructs video scenes
-        as 3D Gaussian representations, enabling edits that remain consistent across
-        frames by operating in 3D space rather than on individual 2D frames.
+        In his work on enhancing temporal consistency through 3D Gaussian Splatting reconstruction,
+        Hayk Minasyan identified critical flaws in the motion-aware video editing approach described by
+        <strong>Satine Aghababyan</strong> in her 2025 M.S. thesis
+        <em>&ldquo;AI-Powered Video Editing: Motion-Aware Object Replacement Using Generative Models&rdquo;</em>
+        (American University of Armenia).
+      </p>
+      <p>
+        Specifically, Minasyan demonstrated that the thesis pipeline&rsquo;s reliance on per-frame diffusion
+        inpainting with auxiliary controls (fixed latent initialization, ControlNet depth conditioning,
+        and IP-Adapter) fails to enforce true temporal consistency. His video demonstrations
+        (shown below) reveal that while coarse spatial positioning can be maintained across frames,
+        the generated replacement object drifts significantly in appearance &mdash; changing color,
+        shape, and identity over time. This directly supports the argument that operating in
+        3D space (via Gaussian Splatting reconstruction) offers a more principled path to
+        temporally consistent video edits than 2D frame-by-frame approaches.
       </p>
     </div>
   </section>
@@ -108,33 +124,93 @@ import { url } from '../utils/url';
   <section class="section">
     <h2 class="section-title">Limitations Identified by Hayk Minasyan</h2>
     <p class="limitations-intro">
-      The following video demonstrations, shared by Hayk Minasyan, illustrate key
-      limitations of current temporal consistency approaches in video editing.
+      The following video demonstrations, produced by Hayk Minasyan, expose key failure modes
+      of Aghababyan's per-frame diffusion pipeline when applied to real-world video content.
+      These results directly informed our critical review.
     </p>
-    <div class="grid-2">
-      <div class="card video-card">
-        <h3>Limitation Demo 1</h3>
+    <div class="limitation-grid">
+      <div class="card limitation-card">
+        <div class="limitation-header">
+          <span class="limitation-number">01</span>
+          <h3>Appearance Drift Under Rigid Motion</h3>
+        </div>
         <video controls preload="metadata">
           <source src={url('/assets/videos/limitation_1.mp4')} type="video/mp4" />
         </video>
+        <p class="limitation-desc">
+          Even with fixed seeds and ControlNet conditioning, the replacement object's color and texture
+          shift progressively across frames, breaking visual identity.
+        </p>
       </div>
-      <div class="card video-card">
-        <h3>Limitation Demo 2</h3>
+      <div class="card limitation-card">
+        <div class="limitation-header">
+          <span class="limitation-number">02</span>
+          <h3>Non-Rigid Motion Failure</h3>
+        </div>
         <video controls preload="metadata">
           <source src={url('/assets/videos/limitation_2.mp4')} type="video/mp4" />
         </video>
+        <p class="limitation-desc">
+          The similarity-transform motion model cannot represent articulated or deformable motion,
+          causing severe distortion when applied to non-rigid objects.
+        </p>
       </div>
-      <div class="card video-card">
-        <h3>Limitation Demo 3</h3>
+      <div class="card limitation-card">
+        <div class="limitation-header">
+          <span class="limitation-number">03</span>
+          <h3>Optical Flow Artifacts</h3>
+        </div>
         <video controls preload="metadata">
           <source src={url('/assets/videos/limitation_3.mp4')} type="video/mp4" />
         </video>
+        <p class="limitation-desc">
+          RAFT-based warping introduces blurring and stretching under fast or complex motion,
+          with degraded performance on real-content videos compared to synthetic training data.
+        </p>
       </div>
-      <div class="card video-card">
-        <h3>Limitation Demo 4</h3>
+      <div class="card limitation-card">
+        <div class="limitation-header">
+          <span class="limitation-number">04</span>
+          <h3>Temporal Identity Loss</h3>
+        </div>
         <video controls preload="metadata">
           <source src={url('/assets/videos/limitation_4.mp4')} type="video/mp4" />
         </video>
+        <p class="limitation-desc">
+          The replacement object changes identity entirely over the sequence, demonstrating
+          that auxiliary controls alone cannot enforce stable cross-frame appearance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Supplementary Qualitative Reproduction</h2>
+    <p class="section-intro">
+      As a qualitative supplement to our critical review, we ran an independent notebook experiment
+      reproducing the thesis pipeline. The results below visually confirm the central failure mode
+      discussed throughout the review.
+    </p>
+    <div class="card reproduction-card">
+      <ImageWithFallback
+        src={url('/assets/images/Notebook_result.png')}
+        alt="12-frame grid showing progressive appearance drift: a cat is replaced by a stylized toy that changes color, shape, and identity across frames"
+      />
+      <div class="reproduction-caption">
+        <h3>12-Frame Object Replacement Sequence</h3>
+        <p>
+          A small cat in the source clip is progressively replaced by a stylized toy-like character.
+          Coarse spatial localization is largely maintained &mdash; the edited object stays in
+          approximately the correct ground-plane region across frames. However, <strong>object identity
+          is not temporally stable</strong>: the replacement drifts from a cat-like yellow object in
+          earlier frames toward a red, rounded robot-like character in later frames.
+        </p>
+        <p>
+          This behavior is qualitatively consistent with the review's main critique: auxiliary controls
+          around frame-wise generation can preserve rough spatial placement while still failing to
+          enforce stable cross-frame appearance. The grid supports the argument that coarse motion
+          transfer alone does not guarantee temporal appearance consistency.
+        </p>
       </div>
     </div>
   </section>
@@ -157,6 +233,11 @@ import { url } from '../utils/url';
     color: var(--c-text-muted);
     margin-bottom: var(--space-2xl);
   }
+  .section-intro {
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-lg);
+    line-height: 1.7;
+  }
   .pipeline-steps {
     margin-top: var(--space-lg);
     padding-left: var(--space-xl);
@@ -167,25 +248,45 @@ import { url } from '../utils/url';
   .pipeline-steps li {
     line-height: 1.6;
   }
-  .limitations {
-    padding-left: var(--space-xl);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  ul:not(.limitations):not(.pipeline-steps) {
+  ul:not(.pipeline-steps) {
     padding-left: var(--space-xl);
     margin-top: var(--space-sm);
   }
-  ul:not(.limitations):not(.pipeline-steps) li {
+  ul:not(.pipeline-steps) li {
     margin-bottom: var(--space-xs);
   }
   h3 {
     margin-top: var(--space-lg);
   }
+
+  /* Related Work */
+  .related-work {
+    border-left: 3px solid var(--c-primary);
+  }
+  .related-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
   .related-work h3 {
     color: var(--c-primary);
     margin-top: 0;
+    flex: 1;
+  }
+  .related-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--c-primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 4px;
   }
   .related-meta {
     font-size: 0.875rem;
@@ -193,17 +294,86 @@ import { url } from '../utils/url';
     font-weight: 500;
     margin-bottom: var(--space-md);
   }
+  .related-work p {
+    line-height: 1.7;
+  }
+
+  /* Limitations */
   .limitations-intro {
     color: var(--c-text-muted);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    line-height: 1.7;
   }
-  .video-card video {
+  .limitation-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 768px) {
+    .limitation-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .limitation-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .limitation-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+  .limitation-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--c-primary);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .limitation-header h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .limitation-card video {
     width: 100%;
     border-radius: var(--radius-md);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #000;
+  }
+  .limitation-desc {
+    font-size: 0.875rem;
+    color: var(--c-text-muted);
+    line-height: 1.6;
     margin-top: var(--space-sm);
   }
-  .video-card h3 {
-    font-size: 1rem;
+
+  /* Reproduction */
+  .reproduction-card {
+    overflow: hidden;
+  }
+  .reproduction-card :global(img) {
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+  }
+  .reproduction-caption h3 {
     margin-top: 0;
+    color: var(--c-primary);
+    font-size: 1.1rem;
+  }
+  .reproduction-caption p {
+    line-height: 1.7;
+    color: var(--c-text-muted);
+  }
+  .reproduction-caption p strong {
+    color: var(--c-text);
   }
 </style>
