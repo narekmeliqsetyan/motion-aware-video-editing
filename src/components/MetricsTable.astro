@@ -109,7 +109,12 @@ const tableId = `table-${title.replace(/\W+/g, '-').toLowerCase()}`;
             const tr = document.createElement('tr');
             cols.forEach((c) => {
               const td = document.createElement('td');
-              td.textContent = String(r[c] ?? '');
+              const val = r[c];
+              if (typeof val === 'number' && !Number.isInteger(val)) {
+                td.textContent = val.toFixed(4);
+              } else {
+                td.textContent = String(val ?? '');
+              }
               tr.appendChild(td);
             });
             tbody.appendChild(tr);
