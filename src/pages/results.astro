@@ -55,33 +55,41 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
 
   <section class="section">
     <h2 class="section-title">Video Gallery</h2>
-    <div class="grid-2">
-      <div class="card video-card">
-        <h3>Mask Comparison: YOLO vs SAM2</h3>
-        <video controls preload="metadata">
-          <source src={url('/assets/videos/mask_compare_yolo_vs_sam2.mp4')} type="video/mp4" />
-        </video>
-      </div>
+
+    <div class="featured-video card video-card">
+      <div class="video-badge">Featured</div>
+      <h3>Mask Comparison: YOLO vs SAM2</h3>
+      <p class="video-desc">Side-by-side comparison of YOLO and SAM2 mask propagation on the same video clip, highlighting differences in mask quality and temporal stability.</p>
+      <video controls preload="metadata">
+        <source src={url('/assets/videos/mask_compare_yolo_vs_sam2.mp4')} type="video/mp4" />
+      </video>
+    </div>
+
+    <div class="video-grid">
       <div class="card video-card">
         <h3>Object Replacement: Cat to Drone</h3>
+        <p class="video-desc">Replacing a walking cat with a drone using the full pipeline.</p>
         <video controls preload="metadata">
           <source src={url('/assets/videos/output_replace_cat_to_drone.mp4')} type="video/mp4" />
         </video>
       </div>
       <div class="card video-card">
         <h3>Final Result</h3>
+        <p class="video-desc">End-to-end pipeline output with motion-aware warping and compositing.</p>
         <video controls preload="metadata">
           <source src={url('/assets/videos/result.mp4')} type="video/mp4" />
         </video>
       </div>
       <div class="card video-card">
         <h3>Bear Clip Baseline</h3>
+        <p class="video-desc">Baseline clip used for segmentation and inpainting evaluation.</p>
         <video controls preload="metadata">
           <source src={url('/assets/videos/bear_clip_baseline.mp4')} type="video/mp4" />
         </video>
       </div>
       <div class="card video-card">
         <h3>Humans Video Preview</h3>
+        <p class="video-desc">Non-rigid motion test case with articulated human subjects.</p>
         <video controls preload="metadata">
           <source src={url('/assets/videos/humans_vid3_preview.mp4')} type="video/mp4" />
         </video>
@@ -136,13 +144,65 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
       grid-template-columns: repeat(2, 1fr);
     }
   }
-  .video-card video {
+  /* Featured video — full width */
+  .featured-video {
+    position: relative;
+    margin-bottom: var(--space-lg);
+  }
+  .video-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    padding: 2px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--c-primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    z-index: 1;
+  }
+  .featured-video video {
     width: 100%;
     border-radius: var(--radius-md);
     margin-top: var(--space-sm);
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: #000;
+  }
+
+  /* Video grid — 2 columns */
+  .video-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 768px) {
+    .video-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .video-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .video-card video {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-top: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: #000;
   }
   .video-card h3 {
     font-size: 1rem;
+    margin-bottom: var(--space-xs);
+  }
+  .video-desc {
+    font-size: 0.85rem;
+    color: var(--c-text-muted);
+    line-height: 1.5;
+    margin-bottom: var(--space-sm);
   }
   .stat-card {
     text-align: center;
