@@ -22,7 +22,7 @@ import { url } from '../utils/url';
       <p>
         We present a pipeline for <strong>motion-aware object replacement</strong> in
         video sequences. Our approach combines state-of-the-art segmentation
-        (SAM2) with video inpainting (ProPainter) and generative object
+        (SAM2) with diffusion-based inpainting (Stable Diffusion) and generative object
         insertion, preserving temporal coherence through explicit motion
         modeling. We track similarity transforms across frames to warp
         replacement objects consistently, achieving high-quality results that
@@ -32,8 +32,7 @@ import { url } from '../utils/url';
         Key contributions include: (1) a comparison of SAM2 vs. YOLO-based
         mask propagation for video object segmentation, (2) motion-field
         estimation using optical flow for temporally consistent warping, and
-        (3) a quantitative evaluation framework using IoU, Dice, SSIM, LPIPS,
-        and FID metrics.
+        (3) a quantitative evaluation using IoU, Dice, and SSIM metrics.
       </p>
     </div>
   </section>

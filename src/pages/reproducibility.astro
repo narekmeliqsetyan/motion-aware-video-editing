@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../utils/url';
 ---
 
 <BaseLayout title="Reproducibility">
   <h1>Reproducibility</h1>
   <p class="page-intro">
-    Instructions for reproducing our experiments and evaluation pipeline.
+    All experiments are implemented as Jupyter notebooks. Follow the steps below to reproduce our results.
   </p>
 
   <section class="section">
@@ -16,41 +17,85 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <li>Python 3.10+</li>
         <li>CUDA 11.8+ (GPU recommended)</li>
         <li>16GB+ RAM</li>
+        <li>Jupyter Notebook or <a href="https://www.kaggle.com/" target="_blank" rel="noopener">Kaggle</a> / <a href="https://colab.research.google.com/" target="_blank" rel="noopener">Google Colab</a> environment</li>
       </ul>
-      <h3>Installation</h3>
-      <pre><code>git clone https://github.com/narekmeliqsetyan/motion-aware-video-editing.git
-cd motion-aware-video-editing
-pip install -r requirements.txt</code></pre>
+      <p class="note">
+        Each notebook installs its own dependencies in the first cells. No separate <code>requirements.txt</code> is needed.
+      </p>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Running the Pipeline</h2>
+    <h2 class="section-title">Pipeline Notebooks</h2>
+    <p class="section-desc">
+      The pipeline is split across several notebooks. Run them in order, or use the all-in-one notebook for a single-run experience.
+    </p>
+
+    <div class="pipeline-steps">
+      <div class="card step-card">
+        <span class="step-badge">Step 1</span>
+        <h3>Data Preprocessing</h3>
+        <p>Extract video frames into a structured dataset using FFmpeg.</p>
+        <p class="notebook-link">
+          <a href={url('/assets/notebooks/video-preprocessing-for-inpainting.ipynb')} download class="btn">Download Notebook</a>
+        </p>
+      </div>
+
+      <div class="card step-card">
+        <span class="step-badge">Step 2</span>
+        <h3>Main Pipeline — Diffusion Inpainting</h3>
+        <p>End-to-end object replacement: YOLOv8-seg masking, RAFT optical flow, Stable Diffusion inpainting with ControlNet, and flow-matching latent search for temporal coherence.</p>
+        <p class="notebook-link">
+          <a href={url('/assets/notebooks/motion_aware_object_replacement.ipynb')} download class="btn">Download Notebook</a>
+        </p>
+      </div>
+
+      <div class="card step-card">
+        <span class="step-badge">Step 3</span>
+        <h3>SAM2 vs YOLOv8 Mask Comparison</h3>
+        <p>Extends the main pipeline with SAM2 video segmentation and produces quantitative mask comparison metrics (IoU, Dice, SSIM).</p>
+        <p class="notebook-link">
+          <a href={url('/assets/notebooks/review_frames_sam2_yolov8_experiments.ipynb')} download class="btn">Download Notebook</a>
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subsection-title">Alternative Approaches</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h3>GAN-Based Replacement</h3>
+        <p>Pix2pix-style GAN with a temporal discriminator for frame-to-frame consistency.</p>
+        <p class="notebook-link">
+          <a href={url('/assets/notebooks/gan-video-replace-adjusted.ipynb')} download class="btn btn-secondary">Download Notebook</a>
+        </p>
+      </div>
+      <div class="card">
+        <h3>All-in-One Modular Package</h3>
+        <p>Self-contained Python package with OpenCV baseline and optional Stable Diffusion upgrade path.</p>
+        <p class="notebook-link">
+          <a href={url('/assets/notebooks/video_replace_all_in_one.ipynb')} download class="btn btn-secondary">Download Notebook</a>
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subsection-title">Kaggle-Ready Version</h3>
     <div class="card">
-      <h3>1. Object Segmentation</h3>
-      <pre><code>python segment.py --input video.mp4 --model sam2 --prompt "object to replace"</code></pre>
-
-      <h3>2. Video Inpainting</h3>
-      <pre><code>python inpaint.py --input video.mp4 --masks masks/ --output inpainted.mp4</code></pre>
-
-      <h3>3. Object Insertion + Warping</h3>
-      <pre><code>python insert.py --background inpainted.mp4 --object replacement.png --output final.mp4</code></pre>
+      <h3>Fixed Errors of Original Review Thesis</h3>
+      <p>Debugged version of the main pipeline adapted for Kaggle (GPU/Internet toggle, Pillow pinning, and corrected errors).</p>
+      <p class="notebook-link">
+        <a href={url('/assets/notebooks/fixed-errors-of-the-original-review-thesis.ipynb')} download class="btn btn-secondary">Download Notebook</a>
+      </p>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Evaluation</h2>
+    <h2 class="section-title">Evaluation Metrics</h2>
     <div class="card">
-      <h3>Metrics Computation</h3>
-      <pre><code>python evaluate.py --pred results/ --gt ground_truth/ --metrics iou dice ssim lpips fid</code></pre>
-
-      <h3>Metric Definitions</h3>
+      <p>Metrics are computed within the notebooks (primarily in the SAM2 vs YOLOv8 experiments notebook). The following metrics are reported:</p>
       <ul>
-        <li><strong>IoU</strong> — Intersection over Union of predicted and ground-truth masks</li>
+        <li><strong>IoU</strong> — Intersection over Union of SAM2 vs YOLO masks</li>
         <li><strong>Dice</strong> — Dice coefficient (F1 score of mask overlap)</li>
-        <li><strong>SSIM</strong> — Structural Similarity Index of inpainted frames</li>
-        <li><strong>LPIPS</strong> — Learned Perceptual Image Patch Similarity (lower is better)</li>
-        <li><strong>FID</strong> — Frechet Inception Distance of generated objects (lower is better)</li>
+        <li><strong>SSIM</strong> — Structural Similarity Index between mask methods</li>
       </ul>
     </div>
   </section>
@@ -59,23 +104,20 @@ pip install -r requirements.txt</code></pre>
     <h2 class="section-title">Expected Results</h2>
     <div class="card">
       <p>
-        With the default configuration and provided test videos, you should
-        obtain results within the following ranges:
+        SAM2 vs YOLO mask comparison across 60 frames yields the following ranges:
       </p>
       <table class="results-table">
         <thead>
           <tr>
             <th>Metric</th>
-            <th>SAM2 + ProPainter</th>
-            <th>YOLO + ProPainter</th>
+            <th>Range</th>
+            <th>Mean</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>IoU</td><td>0.85 - 0.92</td><td>0.71 - 0.85</td></tr>
-          <tr><td>Dice</td><td>0.89 - 0.96</td><td>0.80 - 0.91</td></tr>
-          <tr><td>SSIM</td><td>0.78 - 0.88</td><td>0.70 - 0.82</td></tr>
-          <tr><td>LPIPS</td><td>0.05 - 0.10</td><td>0.10 - 0.18</td></tr>
-          <tr><td>FID</td><td>10 - 15</td><td>15 - 22</td></tr>
+          <tr><td>IoU</td><td>0.88 - 0.93</td><td>0.91</td></tr>
+          <tr><td>Dice</td><td>0.94 - 0.96</td><td>0.95</td></tr>
+          <tr><td>SSIM</td><td>0.98 - 0.99</td><td>0.98</td></tr>
         </tbody>
       </table>
     </div>
@@ -85,9 +127,10 @@ pip install -r requirements.txt</code></pre>
     <h2 class="section-title">Troubleshooting</h2>
     <div class="card">
       <ul>
-        <li><strong>CUDA out of memory</strong> — Reduce batch size or use CPU mode with <code>--device cpu</code></li>
+        <li><strong>CUDA out of memory</strong> — Reduce batch size or switch to a Kaggle/Colab GPU runtime</li>
         <li><strong>SAM2 checkpoint not found</strong> — Download from the <a href="https://github.com/facebookresearch/sam2" target="_blank" rel="noopener">official repo</a></li>
         <li><strong>Low-quality inpainting</strong> — Ensure masks cover the full object; dilate masks by 5-10 pixels</li>
+        <li><strong>Dependency conflicts</strong> — Run notebooks in a fresh virtual environment or use Kaggle/Colab where dependencies are pre-installed</li>
       </ul>
     </div>
   </section>
@@ -99,15 +142,65 @@ pip install -r requirements.txt</code></pre>
     color: var(--c-text-muted);
     margin-bottom: var(--space-2xl);
   }
+  .section-desc {
+    color: var(--c-text-muted);
+    margin-bottom: var(--space-lg);
+  }
   h3 {
     margin-top: var(--space-lg);
     margin-bottom: var(--space-sm);
+  }
+  .subsection-title {
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+    color: var(--c-text-muted);
+    font-size: 1.1rem;
   }
   ul {
     padding-left: var(--space-xl);
     margin-bottom: var(--space-md);
   }
   li { margin-bottom: var(--space-xs); }
+  .note {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--c-surface);
+    border-left: 3px solid var(--c-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--c-text-muted);
+  }
+  .pipeline-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .step-card {
+    position: relative;
+    padding-top: var(--space-xl);
+  }
+  .step-badge {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    background: var(--c-primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+  .notebook-link {
+    margin-top: var(--space-sm);
+  }
+  .btn-secondary {
+    background: var(--c-surface);
+    color: var(--c-text);
+    border: 1px solid var(--c-border);
+  }
+  .btn-secondary:hover {
+    background: var(--c-border);
+  }
   .results-table {
     width: 100%;
     border-collapse: collapse;

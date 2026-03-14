@@ -7,7 +7,7 @@ import { url } from '../utils/url';
 <BaseLayout title="Method" math>
   <h1>Method</h1>
   <p class="page-intro">
-    Our pipeline combines segmentation, inpainting, and generative insertion
+    Our pipeline combines segmentation, diffusion-based inpainting, and generative insertion
     with explicit motion modeling for temporally coherent video editing.
   </p>
 
@@ -18,10 +18,9 @@ import { url } from '../utils/url';
     </div>
     <ol class="pipeline-steps">
       <li><strong>Object Segmentation</strong> — SAM2 generates per-frame binary masks for the target object via prompt-guided tracking.</li>
-      <li><strong>Video Inpainting</strong> — ProPainter fills masked regions using flow-guided temporal attention, producing a clean background plate.</li>
-      <li><strong>Generative Object Insertion</strong> — A diffusion-based model generates the replacement object conditioned on the scene context.</li>
-      <li><strong>Motion-Aware Warping</strong> — Optical-flow-derived similarity transforms warp the generated object to match inter-frame motion.</li>
-      <li><strong>Compositing</strong> — Alpha-blended composition with Poisson blending produces the final output video.</li>
+      <li><strong>Diffusion Inpainting</strong> — Stable Diffusion inpainting with ControlNet conditioning fills masked regions, generating the replacement object in context.</li>
+      <li><strong>Motion-Aware Warping</strong> — RAFT optical-flow-derived similarity transforms warp the generated object to match inter-frame motion.</li>
+      <li><strong>Compositing</strong> — Alpha-blended composition produces the final output video.</li>
     </ol>
   </section>
 
@@ -76,16 +75,15 @@ import { url } from '../utils/url';
         <ul>
           <li>Prompt-guided tracking with memory attention</li>
           <li>Higher IoU on deformable objects</li>
-          <li>Slower per-frame inference (~100ms)</li>
+          <li>Slower per-frame inference than YOLO</li>
         </ul>
       </div>
       <div class="card">
-        <h3>YOLOv8 + ByteTrack</h3>
+        <h3>YOLOv8-seg</h3>
         <ul>
-          <li>Detection-based tracking with re-ID</li>
-          <li>Faster inference (~30ms per frame)</li>
+          <li>Per-frame instance segmentation</li>
+          <li>Faster inference than SAM2</li>
           <li>Lower mask quality on non-rigid objects</li>
-          <li>Better for real-time applications</li>
         </ul>
       </div>
     </div>
@@ -96,27 +94,21 @@ import { url } from '../utils/url';
     <div class="card related-work">
       <div class="related-header">
         <h3>Enhancing Temporal Consistency in Video Editing by Reconstructing Videos with 3D Gaussian Splatting</h3>
-        <span class="related-badge">TMLR 2025</span>
+        <span class="related-badge">arXiv 2406.02541</span>
       </div>
-      <p class="related-meta">
-        Hayk Minasyan, MS2 student &mdash; YSU ASDS (Applied Statistics and Data Science)
-      </p>
       <p>
-        In his work on enhancing temporal consistency through 3D Gaussian Splatting reconstruction,
-        Hayk Minasyan identified critical flaws in the motion-aware video editing approach described by
-        <strong>Satine Aghababyan</strong> in her 2025 M.S. thesis
-        <em>&ldquo;AI-Powered Video Editing: Motion-Aware Object Replacement Using Generative Models&rdquo;</em>
-        (American University of Armenia).
-      </p>
-      <p>
-        Specifically, Minasyan demonstrated that the thesis pipeline&rsquo;s reliance on per-frame diffusion
+        Drawing on the research by Shin et al. (<a href="https://arxiv.org/abs/2406.02541" target="_blank" rel="noopener">arXiv 2406.02541</a>),
+        Hayk Minasyan identified critical flaws in per-frame diffusion
         inpainting with auxiliary controls (fixed latent initialization, ControlNet depth conditioning,
-        and IP-Adapter) fails to enforce true temporal consistency. His video demonstrations
-        (shown below) reveal that while coarse spatial positioning can be maintained across frames,
-        the generated replacement object drifts significantly in appearance &mdash; changing color,
-        shape, and identity over time. This directly supports the argument that operating in
-        3D space (via Gaussian Splatting reconstruction) offers a more principled path to
-        temporally consistent video edits than 2D frame-by-frame approaches.
+        and IP-Adapter), showing that it fails to enforce true temporal consistency.
+      </p>
+      <p>
+        His video demonstrations (shown below) reveal that while coarse spatial positioning
+        can be maintained across frames, the generated replacement object drifts significantly
+        in appearance &mdash; changing color, shape, and identity over time. This supports
+        the argument from the research that operating in 3D space (via Gaussian Splatting
+        reconstruction) offers a more principled path to temporally consistent video edits
+        than 2D frame-by-frame approaches.
       </p>
     </div>
   </section>
@@ -124,8 +116,9 @@ import { url } from '../utils/url';
   <section class="section">
     <h2 class="section-title">Limitations Identified by Hayk Minasyan</h2>
     <p class="limitations-intro">
-      The following video demonstrations, produced by Hayk Minasyan, expose key failure modes
-      of Aghababyan's per-frame diffusion pipeline when applied to real-world video content.
+      The following video demonstrations, produced by Hayk Minasyan based on the
+      <a href="https://arxiv.org/abs/2406.02541" target="_blank" rel="noopener">Shin et al. research</a>,
+      expose key failure modes of Aghababyan's per-frame diffusion pipeline when applied to real-world video content.
       These results directly informed our critical review.
     </p>
     <div class="limitation-grid">
