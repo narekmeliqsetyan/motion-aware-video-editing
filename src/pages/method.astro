@@ -118,26 +118,13 @@ import { url } from '../utils/url';
     <p class="limitations-intro">
       The following video demonstrations, produced by Hayk Minasyan based on the
       <a href="https://arxiv.org/abs/2406.02541" target="_blank" rel="noopener">Shin et al. research</a>,
-      expose key failure modes of Aghababyan's per-frame diffusion pipeline when applied to real-world video content.
+      expose key failure modes of the per-frame diffusion pipeline when applied to real-world video content.
       These results directly informed our critical review.
     </p>
     <div class="limitation-grid">
       <div class="card limitation-card">
         <div class="limitation-header">
           <span class="limitation-number">01</span>
-          <h3>Appearance Drift Under Rigid Motion</h3>
-        </div>
-        <video controls preload="metadata">
-          <source src={url('/assets/videos/limitation_1.mp4')} type="video/mp4" />
-        </video>
-        <p class="limitation-desc">
-          Even with fixed seeds and ControlNet conditioning, the replacement object's color and texture
-          shift progressively across frames, breaking visual identity.
-        </p>
-      </div>
-      <div class="card limitation-card">
-        <div class="limitation-header">
-          <span class="limitation-number">02</span>
           <h3>Non-Rigid Motion Failure</h3>
         </div>
         <video controls preload="metadata">
@@ -150,7 +137,7 @@ import { url } from '../utils/url';
       </div>
       <div class="card limitation-card">
         <div class="limitation-header">
-          <span class="limitation-number">03</span>
+          <span class="limitation-number">02</span>
           <h3>Optical Flow Artifacts</h3>
         </div>
         <video controls preload="metadata">
@@ -159,19 +146,6 @@ import { url } from '../utils/url';
         <p class="limitation-desc">
           RAFT-based warping introduces blurring and stretching under fast or complex motion,
           with degraded performance on real-content videos compared to synthetic training data.
-        </p>
-      </div>
-      <div class="card limitation-card">
-        <div class="limitation-header">
-          <span class="limitation-number">04</span>
-          <h3>Temporal Identity Loss</h3>
-        </div>
-        <video controls preload="metadata">
-          <source src={url('/assets/videos/limitation_4.mp4')} type="video/mp4" />
-        </video>
-        <p class="limitation-desc">
-          The replacement object changes identity entirely over the sequence, demonstrating
-          that auxiliary controls alone cannot enforce stable cross-frame appearance.
         </p>
       </div>
     </div>
