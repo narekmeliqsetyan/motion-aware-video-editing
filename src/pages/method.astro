@@ -98,17 +98,16 @@ import { url } from '../utils/url';
       </div>
       <p>
         Drawing on the research by Shin et al. (<a href="https://arxiv.org/abs/2406.02541" target="_blank" rel="noopener">arXiv 2406.02541</a>),
-        Hayk Minasyan identified critical flaws in per-frame diffusion
-        inpainting with auxiliary controls (fixed latent initialization, ControlNet depth conditioning,
-        and IP-Adapter), showing that it fails to enforce true temporal consistency.
+        Hayk Minasyan demonstrated that text-guided video editing &mdash; where a text prompt
+        is used to replace or modify objects in a video &mdash; performs poorly with per-frame
+        diffusion approaches. Despite auxiliary controls (fixed latent initialization, ControlNet
+        conditioning, and IP-Adapter), the text-conditioned generation fails to maintain
+        consistent results across frames.
       </p>
       <p>
-        His video demonstrations (shown below) reveal that while coarse spatial positioning
-        can be maintained across frames, the generated replacement object drifts significantly
-        in appearance &mdash; changing color, shape, and identity over time. This supports
-        the argument from the research that operating in 3D space (via Gaussian Splatting
-        reconstruction) offers a more principled path to temporally consistent video edits
-        than 2D frame-by-frame approaches.
+        His video demonstrations (shown below) confirm that while the text prompt can guide
+        coarse object placement, the generated output drifts significantly in appearance
+        from frame to frame &mdash; changing color, shape, and identity over time.
       </p>
     </div>
   </section>
