@@ -1,0 +1,53 @@
+---
+import ImageWithFallback from './ImageWithFallback.astro';
+
+interface Props {
+  src: string;
+  alt: string;
+  label: string;
+  caption: string;
+}
+
+const { src, alt, label, caption } = Astro.props;
+---
+
+<figure class="figure card">
+  <div class="figure-plot">
+    <ImageWithFallback src={src} alt={alt} />
+  </div>
+  <figcaption>
+    <span class="figure-label">{label}</span>
+    {caption}
+  </figcaption>
+</figure>
+
+<style>
+  .figure {
+    margin: 0;
+    /* Grid/flex children default to min-width:auto, which would let the wide
+       plot push the whole page sideways instead of scrolling inside .figure-plot. */
+    min-width: 0;
+  }
+  /* Plots are rendered on a white canvas, so keep a light surface behind them
+     in both themes instead of letting the dark background clash. */
+  .figure-plot {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    overflow-x: auto;
+  }
+  .figure-plot :global(img) {
+    min-width: 520px;
+    margin: 0 auto;
+  }
+  figcaption {
+    margin-top: var(--space-md);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--c-text-muted);
+  }
+  .figure-label {
+    font-weight: 600;
+    color: var(--c-text);
+  }
+</style>

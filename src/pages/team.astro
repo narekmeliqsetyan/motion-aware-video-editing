@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { team } from '../data/team';
+
+const initials = (name: string) => name.split(' ').map((n) => n[0]).join('');
+const biographies = team.filter((m) => m.bio);
 ---
 
 <BaseLayout title="Team">
@@ -13,9 +16,7 @@ import { team } from '../data/team';
     <div class="team-grid">
       {team.map((member) => (
         <div class="team-card card">
-          <div class="avatar">
-            {member.name.split(' ').map(n => n[0]).join('')}
-          </div>
+          <div class="avatar">{initials(member.name)}</div>
           <h3>{member.link ? <a href={member.link} target="_blank" rel="noopener">{member.name}</a> : member.name}</h3>
           <p class="role">{member.role}</p>
           {member.affiliation && <p class="affiliation">{member.affiliation}</p>}
@@ -23,6 +24,24 @@ import { team } from '../data/team';
       ))}
     </div>
   </section>
+
+  {biographies.length > 0 && (
+    <section class="section">
+      <h2 class="section-title">Author Biographies</h2>
+      <div class="bio-list">
+        {biographies.map((member) => (
+          <div class="bio-card card">
+            <div class="avatar avatar-sm">{initials(member.name)}</div>
+            <div class="bio-body">
+              <h3>{member.name}</h3>
+              {member.affiliation && <p class="affiliation">{member.affiliation}</p>}
+              <p class="bio">{member.bio}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
 </BaseLayout>
 
 <style>
@@ -35,6 +54,8 @@ import { team } from '../data/team';
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: var(--space-lg);
+    /* Cards with a biography are taller; don't stretch their row-mates. */
+    align-items: start;
   }
   .team-card {
     text-align: center;
@@ -61,5 +82,47 @@ import { team } from '../data/team';
   .affiliation {
     color: var(--c-text-muted);
     font-size: 0.85rem;
+  }
+  /* ===== Author biographies ===== */
+  .bio-list {
+    display: grid;
+    gap: var(--space-lg);
+  }
+  .bio-card {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: flex-start;
+  }
+  .avatar-sm {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .bio-body {
+    min-width: 0;
+  }
+  .bio-body h3 {
+    margin-bottom: var(--space-xs);
+  }
+  .bio-body .affiliation {
+    margin-bottom: var(--space-sm);
+  }
+  .bio {
+    max-width: 68ch;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  @media (max-width: 560px) {
+    .bio-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .bio {
+      text-align: left;
+    }
   }
 </style>

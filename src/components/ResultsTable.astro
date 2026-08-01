@@ -1,0 +1,80 @@
+---
+interface Props {
+  label: string;
+  caption: string;
+  columns: string[];
+  rows: (string | number)[][];
+}
+
+const { label, caption, columns, rows } = Astro.props;
+---
+
+<figure class="table-figure card">
+  <figcaption>
+    <span class="table-label">{label}</span>
+    {caption}
+  </figcaption>
+  <div class="table-scroll">
+    <table class="results-table">
+      <thead>
+        <tr>{columns.map((col) => <th set:html={col} />)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr>
+            {row.map((cell, i) => (
+              i === 0 ? <th scope="row" set:html={cell} /> : <td set:html={cell} />
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style>
+  .table-figure {
+    margin: 0;
+    /* Grid/flex children default to min-width:auto, which would let the wide
+       table push the whole page sideways instead of scrolling inside .table-scroll. */
+    min-width: 0;
+  }
+  figcaption {
+    margin-bottom: var(--space-md);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--c-text-muted);
+  }
+  .table-label {
+    font-weight: 600;
+    color: var(--c-text);
+  }
+  /* Wide tables scroll inside this box so the page body never scrolls sideways. */
+  .table-scroll {
+    overflow-x: auto;
+  }
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .results-table th,
+  .results-table td {
+    padding: var(--space-sm);
+    border: 1px solid var(--c-border);
+    text-align: center;
+    white-space: nowrap;
+    color: var(--c-text);
+  }
+  .results-table thead th {
+    background: var(--c-surface);
+    font-weight: 600;
+  }
+  .results-table tbody th {
+    text-align: left;
+    font-weight: 500;
+  }
+  .results-table tbody tr:hover {
+    background: var(--c-surface);
+  }
+</style>

@@ -1,19 +1,86 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LineChart from '../components/LineChart.astro';
-import MetricsTable from '../components/MetricsTable.astro';
+import Figure from '../components/Figure.astro';
+import ResultsTable from '../components/ResultsTable.astro';
 import { url } from '../utils/url';
 
 const csvUrl = url('/assets/data/mask_metrics_sam2_vs_yolo.csv');
-const ninjaCsvUrl = url('/assets/data/ninjas.csv');
+
+const mainColumns = [
+  'Method',
+  'Videos',
+  'Frames/video',
+  'Full PSNR &uarr;',
+  'Full SSIM &uarr;',
+  'BG PSNR &uarr;',
+  'BG MAE &darr;',
+  'Edit PSNR &uarr;',
+  'Edit SSIM &uarr;',
+  'Edit MAE &darr;',
+  'LPIPS &darr;',
+];
+
+const mainRows = [
+  ['GAN baseline', 18, 200, '23.56', '0.645', '26.28', '9.42', '16.84', '0.472', '27.86', '0.4949'],
+  ['CLIP-guided variant', 18, 120, '84.59', '0.99998', '82.49', '0.00032', '82.26', '0.99997', '0.00076', '0.000006'],
+  ['Stable Diffusion + SAM2', 7, 60, '20.61', '0.698', '28.11', '8.41', '9.85', '0.268', '62.50', '&mdash;'],
+];
+
+const categoryColumns = [
+  'Category',
+  'Trials',
+  'Full SSIM &uarr;',
+  'BG PSNR &uarr;',
+  'Edit SSIM &uarr;',
+  'Temp. L1 &darr;',
+  'Temp. SSIM &uarr;',
+];
+
+const categoryRows = [
+  ['Cars', 3, '0.746', '28.84', '0.258', '0.0475', '0.653'],
+  ['Cats', 3, '0.605', '25.48', '0.228', '0.0258', '0.850'],
+  ['Humans', 1, '0.837', '33.83', '0.417', '0.0153', '0.851'],
+];
 ---
 
 <BaseLayout title="Results">
   <h1>Results</h1>
   <p class="page-intro">
-    Quantitative evaluation of our motion-aware video editing pipeline
-    comparing SAM2 and YOLO-based mask propagation strategies.
+    Quantitative evaluation of AI video inpainting methods on our custom
+    real-world dataset, alongside a mask-propagation comparison between SAM2
+    and YOLO.
   </p>
+
+  <section class="section">
+    <h2 class="section-title">Benchmark Comparison</h2>
+    <div class="benchmark-stack">
+      <ResultsTable
+        label="Table 1."
+        caption="Main quantitative comparison across the evaluated methods. PSNR is reported in dB, MAE is reported on the 0–255 intensity scale, and LPIPS is lower better. For CLIP, PSNR values are finite-value means because some samples produced infinite PSNR. The CLIP scores should be read as preservation scores rather than substitution success, because qualitative inspection showed that CLIP often left the original object largely unchanged."
+        columns={mainColumns}
+        rows={mainRows}
+      />
+      <ResultsTable
+        label="Table 2."
+        caption="Category-level Stable Diffusion + SAM2 results. The values show that difficulty varies substantially by object type and scene dynamics."
+        columns={categoryColumns}
+        rows={categoryRows}
+      />
+      <Figure
+        src={url('/assets/images/plots/back_mae.png')}
+        alt="Three grouped bar charts showing background, full-frame, and edit-region MAE for the Diffusion and CLIP methods across the Car, Cat, Human, and Overall categories, on a logarithmic scale with error bars"
+        label="Figure 1."
+        caption="Category-wise MAE comparison for the matched seven-sequence experiment. Bars report the video-level macro mean and error bars report the sample standard deviation. All MAE values use the 0–255 intensity scale, and lower values are better. The near-zero CLIP errors primarily indicate preservation of the source appearance and should not, by themselves, be interpreted as successful object substitution."
+      />
+      <Figure
+        src={url('/assets/images/plots/time_eff.png')}
+        alt="Three bar charts comparing GAN, CLIP, and Stable Diffusion plus SAM2 on reported temporal error, total time per evaluated clip, and effective seconds per frame, all on logarithmic scales"
+        label="Figure 2."
+        caption="Temporal consistency and computational efficiency across the evaluated methods. The temporal-error values are complementary rather than directly identical: GAN and CLIP use background flow MAE, whereas Stable Diffusion + SAM2 uses frame-to-frame temporal L1. Likewise, GAN and CLIP report evaluation time, while Stable Diffusion + SAM2 reports generation time, so the timing panels indicate computational scale rather than a strictly controlled speed benchmark."
+      />
+    </div>
+  </section>
 
   <section class="section">
     <h2 class="section-title">Mask Quality Metrics</h2>
@@ -123,10 +190,6 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
     </div>
   </section>
 
-  <section class="section">
-    <h2 class="section-title">Object Insertion Parameters</h2>
-    <MetricsTable csvUrl={ninjaCsvUrl} title="Per-Frame Insertion Parameters (ninjas.csv)" />
-  </section>
 </BaseLayout>
 
 <style>
@@ -134,6 +197,10 @@ const ninjaCsvUrl = url('/assets/data/ninjas.csv');
     font-size: 1.1rem;
     color: var(--c-text-muted);
     margin-bottom: var(--space-2xl);
+  }
+  .benchmark-stack {
+    display: grid;
+    gap: var(--space-lg);
   }
   .charts-grid {
     display: grid;
