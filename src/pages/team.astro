@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ImageWithFallback from '../components/ImageWithFallback.astro';
 import { team } from '../data/team';
+import { url } from '../utils/url';
 
 const initials = (name: string) => name.split(' ').map((n) => n[0]).join('');
 const biographies = team.filter((m) => m.bio);
@@ -31,11 +33,13 @@ const biographies = team.filter((m) => m.bio);
       <div class="bio-list">
         {biographies.map((member) => (
           <div class="bio-card card">
-            <div class="avatar avatar-sm">{initials(member.name)}</div>
+            {member.photo
+              ? <ImageWithFallback class="bio-photo" src={url(member.photo)} alt={`Portrait of ${member.name}`} />
+              : <div class="avatar avatar-sm">{initials(member.name)}</div>}
             <div class="bio-body">
               <h3>{member.name}</h3>
               {member.affiliation && <p class="affiliation">{member.affiliation}</p>}
-              <p class="bio">{member.bio}</p>
+              {member.bio!.split('\n\n').map((para) => <p class="bio">{para}</p>)}
             </div>
           </div>
         ))}
@@ -100,6 +104,14 @@ const biographies = team.filter((m) => m.bio);
     margin: 0;
     flex-shrink: 0;
   }
+  .bio-card :global(.bio-photo) {
+    width: 96px;
+    height: 120px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
   .bio-body {
     min-width: 0;
   }
@@ -114,6 +126,9 @@ const biographies = team.filter((m) => m.bio);
     color: var(--c-text-muted);
     font-size: 0.9rem;
     line-height: 1.7;
+  }
+  .bio + .bio {
+    margin-top: var(--space-md);
   }
   @media (max-width: 560px) {
     .bio-card {
