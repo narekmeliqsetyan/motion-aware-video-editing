@@ -27,7 +27,8 @@ export const team: TeamMember[] = [
         'production integrations and AI-enabled features across React, NestJS, and SQL. His applied ' +
         'work centers on large language model systems with structured outputs, tool routing, and ' +
         'guardrails, together with the evaluation pipelines that catch integration regressions ' +
-        'before release. He has also built call-analytics and observability infrastructure and ' +
+        'before release. One such system reduced an internal task cycle from roughly a day to ' +
+        'about ten minutes. He has also built call-analytics and observability infrastructure and ' +
         'voice-agent prototypes on LiveKit and Retell AI.',
       'He is a graduate of PhysMath School in Yerevan (shortlisted as one of ten finalists ' +
         "worldwide for the 2023 World's Best School Prizes). His technical foundation was built " +
