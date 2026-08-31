@@ -11,12 +11,13 @@ const links = [
   { href: url('/team'), label: 'Team' },
 ];
 
+const paperUrl = url('/assets/papers/Review_of_AI_Video_Inpainting_Methods.pdf');
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <nav class="navbar">
   <div class="navbar-inner">
-    <a class="brand" href={url('/')}>MAVE</a>
+    <a class="brand" href={url('/')}>AI Video Inpainting</a>
     <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -26,6 +27,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
         const active = currentPath === hrefNorm;
         return <a href={href} class:list={['nav-link', { active }]}>{label}</a>;
       })}
+      <a href={paperUrl} class="nav-link nav-paper" target="_blank" rel="noopener">Paper</a>
       <ThemeToggle />
     </div>
   </div>
@@ -67,7 +69,9 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
     font-weight: 700;
     font-size: 1.125rem;
     color: var(--c-primary);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .brand:hover { text-decoration: none; }
   .nav-links {
@@ -92,6 +96,16 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
   .nav-link.active {
     color: var(--c-primary);
     background: var(--c-surface);
+  }
+  /* The paper is the primary call to action, so it reads as a button. */
+  .nav-paper {
+    background: var(--c-primary);
+    color: #fff;
+    font-weight: 600;
+  }
+  .nav-paper:hover {
+    background: var(--c-primary-hover);
+    color: #fff;
   }
   .hamburger {
     display: none;

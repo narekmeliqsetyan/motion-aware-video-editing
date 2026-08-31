@@ -1,18 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { url } from '../utils/url';
+
+const paperUrl = url('/assets/papers/Review_of_AI_Video_Inpainting_Methods.pdf');
 ---
 
 <BaseLayout title="Home">
   <section class="hero">
-    <h1>Motion-Aware Video Editing</h1>
+    <h1>Review of AI Video Inpainting Methods with Empirical Benchmarking on a Custom Real-World Dataset</h1>
     <p class="subtitle">
-      AI-powered object replacement in video using generative models with
-      motion-consistent propagation.
+      A survey of video inpainting from classical patch-based and flow-guided methods to
+      modern generative approaches, benchmarked on a new real-world dataset.
     </p>
     <div class="hero-actions">
-      <a href={url('/method')} class="btn btn-primary">Explore Method</a>
+      <a href={paperUrl} class="btn btn-primary" target="_blank" rel="noopener">Read the Paper</a>
       <a href={url('/results')} class="btn">View Results</a>
+      <a href={url('/method')} class="btn">Explore Method</a>
     </div>
   </section>
 
@@ -20,19 +23,23 @@ import { url } from '../utils/url';
     <h2 class="section-title">Abstract</h2>
     <div class="card">
       <p>
-        We present a pipeline for <strong>motion-aware object replacement</strong> in
-        video sequences. Our approach combines state-of-the-art segmentation
-        (SAM2) with diffusion-based inpainting (Stable Diffusion) and generative object
-        insertion, preserving temporal coherence through explicit motion
-        modeling. We track similarity transforms across frames to warp
-        replacement objects consistently, achieving high-quality results that
-        respect the original scene dynamics.
+        Video inpainting aims to fill missing or occluded regions in a video so that the
+        result is visually plausible and temporally coherent. This review surveys the
+        evolution from classical patch-based and flow-guided methods to modern generative
+        approaches, including gated convolutional U-Nets, transformer-based models,
+        CLIP-guided editing, and diffusion-based inpainting. We summarize the core ideas,
+        strengths, and limitations of each family and discuss applications in video
+        editing, restoration, film post-production, and autonomous systems.
       </p>
       <p>
-        Key contributions include: (1) a comparison of SAM2 vs. YOLO-based
-        mask propagation for video object segmentation, (2) motion-field
-        estimation using optical flow for temporally consistent warping, and
-        (3) a quantitative evaluation using IoU, Dice, and SSIM metrics.
+        Beyond the survey, we implement and benchmark representative methods, including
+        GAN-based baselines and CLIP-guided variants, on a new real-world dataset
+        containing fast motion, large dynamic objects, and changing illumination. Using
+        standard image-quality, perceptual, and temporal-consistency metrics, we analyze
+        the trade-offs between realism, stability, and compute. Finally, we outline
+        ethical considerations, such as the misuse of seamless content manipulation, and
+        identify open problems and concrete directions toward more robust, efficient, and
+        trustworthy generative video inpainting.
       </p>
     </div>
   </section>

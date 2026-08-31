@@ -1,6 +1,6 @@
-# Motion-Aware Video Editing
+# Review of AI Video Inpainting Methods with Empirical Benchmarking on a Custom Real-World Dataset
 
-Research project website for AI-powered video editing with motion-aware object replacement using generative models.
+Companion website for the IEEE Access review paper on AI video inpainting, with the benchmark results, method walkthrough, and reproduction notebooks.
 
 **Live site:** [narekmeliqsetyan.github.io/motion-aware-video-editing](https://narekmeliqsetyan.github.io/motion-aware-video-editing/)
 

@@ -9,7 +9,7 @@ interface Props {
   math?: boolean;
 }
 
-const { title, description = 'Motion-Aware Video Editing: AI-powered object replacement using generative models', math = false } = Astro.props;
+const { title, description = 'Review of AI video inpainting methods, from classical patch-based and flow-guided approaches to gated convolutional U-Nets, transformers, CLIP-guided editing, and diffusion models, with empirical benchmarking on a custom real-world dataset.', math = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -25,7 +25,7 @@ const { title, description = 'Motion-Aware Video Editing: AI-powered object repl
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <title>{title} | Motion-Aware Video Editing</title>
+    <title>{title} | Review of AI Video Inpainting Methods with Empirical Benchmarking on a Custom Real-World Dataset</title>
     {math && (
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
     )}
